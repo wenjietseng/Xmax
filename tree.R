@@ -1,0 +1,124 @@
+library(ggplot2)
+#-------------------------------------------------#
+# trunk
+x <- c(-.8, -1.2, 1.2, .8)
+y <- c(0, 2.2, 2.2, 0)
+part <- rep("tree", 4)
+tree <- data.frame(x, y, part)
+
+L0 <- ggplot(tree, aes(x, y)) +
+        geom_polygon(fill = "saddlebrown") +
+        xlim(-10, 10) + ylim(0, 23) +
+        theme(axis.title = element_blank(),
+              axis.text = element_blank(),
+              axis.ticks = element_blank(),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.background = element_rect(fill = "lightyellow"))
+#-------------------------------------------------#
+# layers of leaves
+x <- c(-2, -3, -5, -6.5, -5.4, -6, -4.5, 4.6, 6.1, 5.5, 6.6, 5, 3, 2)
+y <- c(1.8, 2.3, 2, 2.5, 4, 4, 6, 6, 4, 4, 2.6, 2, 2.4, 1.7)
+x <- jitter(x)
+part <- rep("leaves0", 14)
+leaves1 <- data.frame(x, y, part)
+L1 <- L0 + geom_polygon(data = leaves1, aes(x, y), fill = "forestgreen")
+#
+shrink <-  rep(c(.8, -.8), each = 7)
+grow <- rep(3.5, 14)
+part <- rep("leaves1", 14)
+leaves2 <- data.frame(x = jitter(x + shrink),y = jitter(y + grow), part)
+L2 <- L1 + geom_polygon(data = leaves2, aes(x, y), fill = "forestgreen")
+#
+shrink <- rep(c(.8, -.8), each = 7)
+part <- rep("leaves2", 14)
+leaves3 <- data.frame(x = jitter(leaves2$x + shrink),
+                      y = jitter(leaves2$y + grow), part)
+L3 <- L2 + geom_polygon(data = leaves3, aes(x, y), fill = "forestgreen")
+#
+shrink <- rep(c(.8, -.8), each = 7) 
+part <- rep("leaves3", 14)
+leaves4 <- data.frame(x = jitter(leaves3$x + shrink),
+                      y = jitter(leaves3$y + grow), part)
+L4 <- L3 + geom_polygon(data = leaves4, aes(x, y), fill = "forestgreen")
+#
+x_top <- c(-3.3, -1.2, -1.8, 0, 1.8, 1.2, 3.3) 
+y_top <- c(16, 18.5, 18.5, 21.5, 18.5, 18.5, 16)
+part <- rep("top", 7)
+leaves5 <- data.frame(x = x_top, y = y_top, part)
+L5 <- L4 + geom_polygon(data = leaves5, aes(x, y), fill = "forestgreen")
+#-------------------------------------------------#
+# decorations
+# ribbons 
+x1 <- jitter(c(-4.2, -4, -3.8, -3.4))
+x2 <- jitter(c(3.8, 3.5, 3.2, 2.9))
+y1 <- jitter(c(3, 6.5, 10, 13.5))
+y2 <- jitter(c(6.5, 10, 13.5, 17)) 
+dta_rib <- data.frame(x1, x2, y1, y2)
+dta_rib2 <- as.data.frame(lapply(dta_rib, jitter))
+#
+L6 <- L5 + geom_curve(data = dta_rib,
+                aes(x = x1, y = y1, xend = x2, yend = y2),
+                col = "gold", lwd = 2, alpha = .8) +
+           geom_curve(data = dta_rib2,
+                aes(x = x1, y = y1, xend = x2, yend = y2),
+                col = "firebrick1", lwd = 2, alpha = .8)
+#-------------------------------------------------#
+# balls
+# make sure balls are one the tree
+balls_x1 <- runif(13, -5, 5)
+balls_x2 <- runif(11, -3, 3)
+balls_x3 <- runif(6, -2, 2)
+balls_x <- c(balls_x1, balls_x2, balls_x3)
+balls_y1 <- runif(13, 2, 8)
+balls_y2 <- runif(11, 8, 14)
+balls_y3 <- runif(6, 15, 18)
+balls_y <- c(balls_y1, balls_y2, balls_y3)
+part <- rep("ball", 30)
+
+# draw them!
+balls <- data.frame(x = balls_x, y = balls_y, part, col = sample(1:30, 30))
+L7 <- L6 + geom_point(data = balls, aes(x = x, y = y, col = col), size = 3) +
+             scale_color_gradient(low = "blue", high = "orange") +
+             theme(legend.position = "NONE")
+#-------------------------------------------------#
+# walking stick candy
+stick_x1 <- runif(7, -5, 5)
+stick_x2 <- runif(5, -3, 3)
+stick_x3 <- runif(3, -2, 2)
+stick_x <- c(stick_x1, stick_x2, stick_x3)
+stick_y1 <- runif(7, 2, 8)
+stick_y2 <- runif(5, 8, 14)
+stick_y3 <- runif(3, 15, 18)
+stick_y <- c(stick_y1, stick_y2, stick_y3)
+part <- rep("stick", 15)
+label <- rep("J", 15)
+sticks <- data.frame(x = stick_x, y = stick_y, part, label)
+L8 <- L7 + geom_text(data = sticks, aes(x = x, y = y, label = label),
+                     size = 8, col = "red")
+#-------------------------------------------------#
+# star
+x_star <- c(0, -.7, -.4, -1.1, -.25, 0, .25, 1.1, .4, .7)
+y_star <- c(20.5, 19.7, 20.8, 21.5, 21.5, 22.5, 21.5, 21.5, 20.8, 19.7)
+star <- data.frame(x_star, y_star, part = rep("star", 10))
+L9 <- L8 + geom_polygon(data = star, aes(x_star, y_star), fill = "yellow",
+                        col = "gold")
+#-------------------------------------------------#
+# Text     
+L10 <- L9 + geom_text(aes(x = -10, y = 22,
+               label = "Herzlich wuensche ich Ihnen\nfrohe Weihnachten und\nein gutes neues Jahr."), vjust = "inward", hjust = "inward") +
+     geom_text(aes(x = 10, y = 22, label = "Happy Chistmas and\n Happy New Year!"), vjust = "inward", hjust = "inward") +
+     geom_text(aes(x = 10, y = 0.1, label = "created by WJT\n12.12.2016"), vjust = "inward", hjust = "inward")
+
+#-------------------------------------------------#
+oopt <- ani.options(nmax = 11)
+saveGIF({
+  figs <- list(L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10)
+  for(i in 1:ani.options("nmax")) {
+    print(figs[[i]])
+  }
+}, movie.name = "Weihnachtsbaum.gif", interval = c(rep(.3, 10), 1))
+
+# Error: Could not find ffmpeg command. You should either change the 
+# animation.fun hook option or install ffmpeg with libvpx enabled.
+# brew install ffmpeg --with-libvpx
